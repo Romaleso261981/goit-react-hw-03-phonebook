@@ -26,7 +26,7 @@ export default class App extends Component {
   handleChange = e => {
     this.setState({ name: e.target.value });
   };
-
+  
   addContact = contact => {
     const { contacts } = this.state;
     if (
@@ -83,3 +83,4 @@ export default class App extends Component {
     );
   }
 }
+
