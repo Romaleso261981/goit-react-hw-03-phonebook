@@ -9,14 +9,17 @@ export default class App extends Component {
   state = { contacts: [], filter: '' };
 
   componentDidMount() {
-    const contactLocal = JSON.parse(localStorage.getItem('contacts'));
-    if (contactLocal === null) return;
-    this.setState({ contacts: contactLocal });
+    try {
+      const contactLocal = JSON.parse(localStorage.getItem('contacts'));
+      this.setState({ contacts: contactLocal });
+    } catch (error) {
+      this.setState({ contacts: []});
+      console.error('Get state error: ', error.message);
+    }
   }
 
-  
   componentDidUpdate() {
-    const {contacts} = this.state
+    const { contacts } = this.state;
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }
 
@@ -38,7 +41,6 @@ export default class App extends Component {
         contacts: [...prevState.contacts, newContact],
       };
     });
-    
   };
 
   deleteContact = id => {
