@@ -50,7 +50,7 @@ export default class App extends Component {
   };
 
   getFilteredContacts = () => {
-    const { contacts , filter } = this.state;
+    const { contacts, filter } = this.state;
 
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
