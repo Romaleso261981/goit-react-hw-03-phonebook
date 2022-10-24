@@ -1,73 +1,79 @@
-import React from 'react';
-
+import { FilterInput, NotificationSpan } from './AppStyle.js';
+import { Component } from 'react';
+import Notification from './Notification/Notification';
+import { nanoid } from 'nanoid';
+import ContactList from './ContactList/ContactList';
+import ContactForm from './ContactForm/ContactForm';
 const INITIAL_STATE = {
-  login: '',
-  email: '',
-  password: '',
+  contacts: [
+    { id: nanoid(), name: 'коля мельніков', number: '097 742 4367' },
+    { id: nanoid(), name: 'коля подсобнік', number: '068 823 9986' },
+    { id: nanoid(), name: 'леся', number: '645-17-79' },
+    { id: nanoid(), name: 'Сергій Дикий', number: '067......54' },
+  ],
+  filter: '',
 };
 
-export class App extends React.Component {
+export default class App extends Component {
   state = { ...INITIAL_STATE };
+  
 
-  // Для всіх інпутів створюємо один обробник
-  // Розрізняти інпути будемо за атрибутом name
-  handleChange = evt => {
-    const { name, value } = evt.target;
-    this.setState({ [name]: value });
+  handleChange = e => {
+    this.setState({ name: e.target.value });
   };
 
-  handleSubmit = evt => {
-    evt.preventDefault();
-    const { login, email, password } = this.state;
-    console.log(`Login: ${login}, Email: ${email}, Password: ${password}`);
-    this.props.onSubmit();
-    this.reset();
+  addContact = contact => {
+    const { contacts } = this.state;
+    if (contacts.filter(({ number }) => number === contact.number).length !== 0) {
+      alert(contact.number + ' this number is already in your phone book');
+      return;
+    }
+    this.setState(prevState => {
+      const newContact = { id: nanoid(), ...contact };
+      return {
+        contacts: [...prevState.contacts, newContact],
+      };
+    });
+    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
   };
 
-  reset = () => {
-    this.setState({ ...INITIAL_STATE });
+  deleteContact = id => {
+    console.log(id);
+    this.setState(({ contacts }) => {
+      const updatedContacts = contacts.filter(contact => contact.id !== id);
+      return { ...INITIAL_STATE, contacts: updatedContacts };
+    });
+  };
+
+  handleFilter = e => {
+    this.setState({ filter: e.target.value });
+  };
+
+  getFilteredContacts = () => {
+    const { contacts, filter } = this.state;
+
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
   };
 
   render() {
-    const { login, email, password } = this.state;
-
+    const filteredContacts = this.getFilteredContacts();
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Name
-          <input
-            type="text"
-            placeholder="Enter login"
-            name="login"
-            value={login}
-            onChange={this.handleChange}
+      <>
+        <ContactForm addContact={this.addContact} value={20} />
+        <FilterInput type="text" onChange={this.handleFilter} />
+        {filteredContacts.length > 0 ? (
+          <ContactList
+            contactsData={filteredContacts}
+            deleteContact={this.deleteContact}
           />
-        </label>
-        <label>
-          Email
-          <input
-            type="email"
-            placeholder="Enter email"
-            name="email"
-            value={email}
-            onChange={this.handleChange}
-          />
-        </label>
-        <label>
-          Password
-          <input
-            type="password"
-            placeholder="Enter password"
-            name="password"
-            value={password}
-            onChange={this.handleChange}
-          />
-        </label>
-
-        <button type="submit">Sign up as {login}</button>
-      </form>
+        ) : (
+          <NotificationSpan>
+            <Notification message="No contacts yet" />
+          </NotificationSpan>
+        )}
+      </>
     );
   }
 }
-
-
