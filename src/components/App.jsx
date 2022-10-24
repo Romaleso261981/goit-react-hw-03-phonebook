@@ -4,23 +4,15 @@ import Notification from './Notification/Notification';
 import { nanoid } from 'nanoid';
 import ContactList from './ContactList/ContactList';
 import ContactForm from './ContactForm/ContactForm';
-const INITIAL_STATE = {
-  contacts: [],
-  filter: '',
-};
 
 export default class App extends Component {
-  state = { ...INITIAL_STATE };
-  
+  state = { contacts: [], filter: '' };
 
   componentDidMount() {
-    const contactLength = JSON.parse(localStorage.getItem("contacts"))
-    if (contactLength.length > 0) {
-      this.setState({ contacts: JSON.parse(localStorage.getItem("contacts"))});
-    } else {
-      this.setState({ contacts: []});
-    }
-    
+    console.log(JSON.parse(localStorage.getItem('contacts')));
+    const contactLength = JSON.parse(localStorage.getItem('contacts'));
+    if (contactLength === null) return;
+    this.setState({ contacts: JSON.parse(localStorage.getItem('contacts')) });
   }
 
   handleChange = e => {
@@ -29,7 +21,9 @@ export default class App extends Component {
 
   addContact = contact => {
     const { contacts } = this.state;
-    if (contacts.filter(({ number }) => number === contact.number).length !== 0) {
+    if (
+      contacts.filter(({ number }) => number === contact.number).length !== 0
+    ) {
       alert(contact.number + ' this number is already in your phone book');
       return;
     }
@@ -46,8 +40,8 @@ export default class App extends Component {
     this.setState(({ contacts }) => {
       const updatedContacts = contacts.filter(contact => contact.id !== id);
       console.log(updatedContacts);
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-      return { ...INITIAL_STATE, contacts: updatedContacts };
+      localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+      return { ...this.state, contacts: updatedContacts };
     });
   };
 
@@ -56,7 +50,7 @@ export default class App extends Component {
   };
 
   getFilteredContacts = () => {
-    const { contacts = [], filter } = this.state;
+    const { contacts , filter } = this.state;
 
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
