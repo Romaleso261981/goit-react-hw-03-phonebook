@@ -5,18 +5,23 @@ import { nanoid } from 'nanoid';
 import ContactList from './ContactList/ContactList';
 import ContactForm from './ContactForm/ContactForm';
 const INITIAL_STATE = {
-  contacts: [
-    { id: nanoid(), name: 'коля мельніков', number: '097 742 4367' },
-    { id: nanoid(), name: 'коля подсобнік', number: '068 823 9986' },
-    { id: nanoid(), name: 'леся', number: '645-17-79' },
-    { id: nanoid(), name: 'Сергій Дикий', number: '067......54' },
-  ],
+  contacts: [],
   filter: '',
 };
 
 export default class App extends Component {
   state = { ...INITIAL_STATE };
   
+
+  componentDidMount() {
+    const contactLength = JSON.parse(localStorage.getItem("contacts"))
+    if (contactLength.length > 0) {
+      this.setState({ contacts: JSON.parse(localStorage.getItem("contacts"))});
+    } else {
+      this.setState({ contacts: []});
+    }
+    
+  }
 
   handleChange = e => {
     this.setState({ name: e.target.value });
@@ -38,9 +43,10 @@ export default class App extends Component {
   };
 
   deleteContact = id => {
-    console.log(id);
     this.setState(({ contacts }) => {
       const updatedContacts = contacts.filter(contact => contact.id !== id);
+      console.log(updatedContacts);
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
       return { ...INITIAL_STATE, contacts: updatedContacts };
     });
   };
@@ -50,7 +56,7 @@ export default class App extends Component {
   };
 
   getFilteredContacts = () => {
-    const { contacts, filter } = this.state;
+    const { contacts = [], filter } = this.state;
 
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
